@@ -14,6 +14,7 @@ Django==4.0.4
 filelock==3.0.12
 html5lib==1.1
 idna==3.2
+isort==5.10.1
 jeepney==0.7.1
 keyring==21.8.0
 lockfile==0.12.2

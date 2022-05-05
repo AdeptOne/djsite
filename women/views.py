@@ -1,45 +1,40 @@
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect, reverse
+from django.http import Http404, HttpResponse
+from django.shortcuts import render
 
-from . import services
-
-
-MENU = [
-    {'title': 'О сайте', 'url_name': 'about'},
-    {'title': 'Добавить статью', 'url_name': 'add_article'},
-    {'title': 'Обратная связь', 'url_name': 'contact'},
-    {'title': 'Войти', 'url_name': 'login'},
-]
+from .forms import AddArticleForm
+from .services import (get_all_articles, get_article_or_404_by_article_slug,
+                       get_articles_by_category_slug, get_id_category_by_slug)
 
 
 def index(request):
-    template_name = 'women/index.html'
-
-    articles = services.get_all_articles()
-    categories = services.get_all_categories()
+    articles = get_all_articles()
 
     context = {
-        'menu': MENU,
         'articles': articles,
         'title': 'Главная страница',
-        'categories': categories,
         'category_selected': 0
     }
 
-    return render(request, template_name, context)
+    return render(request, 'women/index.html', context)
 
 
 def about(request):
-    template_name = 'women/about.html'
     context = {
         'title': 'О сайте',
     }
 
-    return render(request, template_name, context)
+    return render(request, 'women/about.html', context)
 
 
 def add_article(request):
-    return HttpResponse("Add article")
+    form = AddArticleForm()
+
+    context = {
+        'title': 'Добавление статьи',
+        'form': form,
+    }
+
+    return render(request, 'women/add_article.html', context)
 
 
 def login(request):
@@ -50,28 +45,32 @@ def contact(request):
     return HttpResponse("Contact")
 
 
-def show_article(request, article_id):
-    return HttpResponse("article")
+def show_article(request, article_slug):
+    article = get_article_or_404_by_article_slug(article_slug)
+
+    context = {
+        'article': article,
+        'title': article.title,
+        'category_selected': article.category_id,
+    }
+
+    return render(request, 'women/article.html', context)
 
 
-def show_category(request, category_id):
-    template_name = 'women/index.html'
-
-    articles = services.get_articles_by_category(category_id)
-    categories = services.get_all_categories()
+def show_category(request, category_slug):
+    articles = get_articles_by_category_slug(category_slug)
+    id_selected_category = get_id_category_by_slug(category_slug)
 
     if len(articles) == 0:
         raise Http404()
 
     context = {
-        'menu': MENU,
         'articles': articles,
         'title': 'Главная страница',
-        'categories': categories,
-        'category_selected': category_id
+        'category_selected': id_selected_category
     }
 
-    return render(request, template_name, context)
+    return render(request, 'women/index.html', context)
 
 
 # def categories(request, cat_id):
