@@ -1,5 +1,6 @@
 from typing import Union
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -20,7 +21,19 @@ def get_articles_by_category_slug(category_slug: str) -> QuerySet[Article]:
 
 
 def get_id_category_by_slug(category_slug: str) -> int:
-    return Category.objects.get(slug=category_slug).pk
+    try:
+        category_id = Category.objects.get(slug=category_slug).id
+        return category_id
+    except ObjectDoesNotExist:
+        raise ObjectDoesNotExist('Категории с таким слагом не существует')
+
+
+def get_category_name_by_slug(category_slug: str) -> str:
+    try:
+        category_name = Category.objects.get(slug=category_slug).name
+        return category_name
+    except ObjectDoesNotExist:
+        raise ObjectDoesNotExist('Категории с таким слагом не существует')
 
 
 def get_all_categories() -> QuerySet[Category]:
