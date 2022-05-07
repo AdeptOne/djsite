@@ -1,5 +1,5 @@
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .forms import AddArticleForm
 from .services import (get_all_articles, get_article_or_404_by_article_slug,
@@ -27,7 +27,14 @@ def about(request):
 
 
 def add_article(request):
-    form = AddArticleForm()
+    if request.method == 'POST':
+        form = AddArticleForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+
+    else:
+        form = AddArticleForm()
 
     context = {
         'title': 'Добавление статьи',
